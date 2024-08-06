@@ -9,11 +9,22 @@ from tensorflow.keras.optimizers import Adam
 
 
 class LSTMModel:
+    """
+    LSTM model class
+    """
     def __init__(self, data):
+        """
+        Initialize the LSTM model
+        :param data: Preprocessed data
+        """
         self.x_vocab_size, self.y_vocab_size = data.get_vocab_size()
         self.output_shape = data.y_len
 
     def plot_history(self):
+        """
+        plot the training history of the model.
+        :return:
+        """
         plt.figure(figsize=(10, 10))
         # Plot training & validation accuracy values
         plt.plot(self.history.history['accuracy'], label="Training Accuracy")
@@ -35,12 +46,23 @@ class LSTMModel:
         plt.savefig('imgs/lstm_loss_plot.png')
 
     def train_model(self, data, embedding_dim, lstm_units, epochs, batch_size):
+        """
+        Train the model.
+        :param data:
+        :param embedding_dim:
+        :param lstm_units:
+        :param epochs:
+        :param batch_size:
+        :return:
+        """
+        # Encoder structure
         encoder_inputs = Input(shape=(None,))
         enc_emb = Embedding(self.x_vocab_size, embedding_dim, mask_zero=True)(encoder_inputs)
         encoder_lstm = LSTM(lstm_units, return_state=True)
         encoder_outputs, state_h, state_c = encoder_lstm(enc_emb)
         encoder_states = [state_h, state_c]
 
+        # Decoder structure
         decoder_inputs = Input(shape=(None,))
         dec_emb = Embedding(self.y_vocab_size, embedding_dim, mask_zero=True)
         dec_emb = dec_emb(decoder_inputs)
@@ -49,10 +71,12 @@ class LSTMModel:
         decoder_dense = Dense(self.y_vocab_size, activation='softmax')
         decoder_outputs = decoder_dense(decoder_outputs)
 
+        # Seq2Seq model
         model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
         model.compile(optimizer=Adam(), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
         model.summary()
 
+        # Train model
         train_data, test_data = data.create_dataset(batch_size=batch_size)
         self.history = model.fit(train_data, epochs=epochs, validation_data=test_data)
 
@@ -63,11 +87,22 @@ class LSTMModel:
 
 
 class AttentionLSTMModel:
+    """
+    Attention LSTM model class
+    """
     def __init__(self, data):
+        """
+        Initialize the Attention LSTM model
+        :param data: Preprocessed data
+        """
         self.x_vocab_size, self.y_vocab_size = data.get_vocab_size()
         self.output_shape = data.y_len
 
     def plot_history(self):
+        """
+        plot the training history of the model.
+        :return:
+        """
         plt.figure(figsize=(10, 10))
         # Plot training & validation accuracy values
         plt.plot(self.history.history['accuracy'], label="Training Accuracy")
@@ -89,12 +124,23 @@ class AttentionLSTMModel:
         plt.savefig('imgs/attention_lstm_loss_plot.png')
 
     def train_model(self, data, embedding_dim, lstm_units, epochs, batch_size):
+        """
+        Train the model.
+        :param data:
+        :param embedding_dim:
+        :param lstm_units:
+        :param epochs:
+        :param batch_size:
+        :return:
+        """
+        # Encoder structure
         encoder_inputs = Input(shape=(None,))
         enc_emb = Embedding(self.x_vocab_size, embedding_dim, mask_zero=True)(encoder_inputs)
         encoder_lstm = LSTM(lstm_units, return_state=True, return_sequences=True)
         encoder_outputs, state_h, state_c = encoder_lstm(enc_emb)
         encoder_states = [state_h, state_c]
 
+        # Decoder structure
         decoder_inputs = Input(shape=(None,))
         dec_emb = Embedding(self.y_vocab_size, embedding_dim, mask_zero=True)(decoder_inputs)
         decoder_lstm = LSTM(lstm_units, return_sequences=True, return_state=True)
@@ -109,6 +155,7 @@ class AttentionLSTMModel:
         decoder_dense = Dense(self.y_vocab_size, activation='softmax')
         decoder_outputs = decoder_dense(decoder_concat_input)
 
+        # Train model
         model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
         optimizer = Adam(learning_rate=0.00001)
         model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
