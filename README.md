@@ -31,3 +31,4 @@
   * `visualization.py`: visualize the dataset by confusion matrix and t-SNE plot
   * `preprocessing.py`: preprocessing the dataset in `data`(`cmn.txt` and `news.tsv`)
   * `model.py`: training models (LSTM and LSTM with Attention)
+  * `inference.py`: predicting input sentences
