@@ -32,3 +32,7 @@
   * `preprocessing.py`: preprocessing the dataset in `data`(`cmn.txt` and `news.tsv`)
   * `model.py`: training models (LSTM and LSTM with Attention)
   * `inference.py`: predicting input sentences
+  
+* Execution
+
+  * just run the `inference.py` it will automatically train the model. After that it will start the prediction process and you can type any sentences

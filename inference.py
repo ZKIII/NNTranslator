@@ -1,6 +1,4 @@
-from preprocessing import *
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input
+from model import *
 from tensorflow.keras.models import load_model
 
 
@@ -179,16 +177,27 @@ def main(data_path, model_path):
     set_seed(1)
     set_gpu()
 
+    embedding_dim = 16
+    lstm_units = 32
+    batch_size = 6
+    epochs = 5
+
     preprocessor = Preprocessor(data_path)
     print(preprocessor)
     print("----------Model Selection----------")
     while 1:
         model_type = str(input('Type the type of model(lstm or attention_lstm): '))
         if model_type == 'attention_lstm':
+            attention_lstm_model = AttentionLSTMModel(preprocessor)
+            attention_lstm_model.train_model(preprocessor, embedding_dim, lstm_units, epochs, batch_size)
+
             attention_lstm_model_path = model_path + "/AttentionLSTM.h5"
             inference = AttentionLSTMInference(attention_lstm_model_path, preprocessor, embedding_dim=16, lstm_units=32)
             break
         elif model_type == 'lstm':
+            lstm_model = LSTMModel(preprocessor)
+            lstm_model.train_model(preprocessor, embedding_dim, lstm_units, epochs, batch_size)
+
             lstm_model_path = model_path + "/LSTM.h5"
             inference = LSTMInference(lstm_model_path, preprocessor, embedding_dim=16, lstm_units=32)
             break
