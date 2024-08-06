@@ -1,6 +1,6 @@
 from preprocessing import *
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Concatenate
+from tensorflow.keras.layers import Input
 from tensorflow.keras.models import load_model
 
 
@@ -66,7 +66,7 @@ class LSTMInference:
         stop_condition = False
         decoded_sentence = ''
         while not stop_condition:
-            output_tokens, h, c = self.decoder_model.predict([target_seq] + [encoder_outputs] + states_value)
+            output_tokens, h, c = self.decoder_model.predict([target_seq] + states_value)
 
             # Sample a token
             sampled_token_index = np.argmax(output_tokens[0, -1, :])
@@ -125,7 +125,7 @@ class AttentionLSTMInference:
         # Attention mechanism
         attention = self.model.layers[6]
         attention_result = attention([decoder_outputs, encoder_outputs])
-        decoder_concat_input = Concatenate(axis=-1)([decoder_outputs, attention_result])
+        decoder_concat_input = tf.concat([decoder_outputs, attention_result], axis=-1)
 
         # Output layer
         output_layer = self.model.layers[8]
@@ -190,7 +190,7 @@ def main(data_path, model_path):
             break
         elif model_type == 'lstm':
             lstm_model_path = model_path + "/LSTM.h5"
-            inference = AttentionLSTMInference(lstm_model_path, preprocessor, embedding_dim=16, lstm_units=32)
+            inference = LSTMInference(lstm_model_path, preprocessor, embedding_dim=16, lstm_units=32)
             break
 
     print("----------Translation----------")

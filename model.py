@@ -1,10 +1,9 @@
-import tensorflow as tf
 import matplotlib.pyplot as plt
 import pandas as pd
 
 from preprocessing import *
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, LSTM, Embedding, Dense, Attention, Concatenate
+from tensorflow.keras.layers import Input, LSTM, Embedding, Dense, Attention
 from tensorflow.keras.optimizers import Adam
 
 
@@ -151,7 +150,7 @@ class AttentionLSTMModel:
         attention_result = attention_layer([decoder_outputs, encoder_outputs])
 
         # Concatenate the context vector with the decoder outputs
-        decoder_concat_input = Concatenate(axis=-1)([decoder_outputs, attention_result])
+        decoder_concat_input = tf.concat([decoder_outputs, attention_result], axis=-1)
         decoder_dense = Dense(self.y_vocab_size, activation='softmax')
         decoder_outputs = decoder_dense(decoder_concat_input)
 
@@ -181,5 +180,9 @@ if __name__ == '__main__':
 
     preprocessor = Preprocessor(path='./data')
     print(preprocessor)
+
+    lstm_model = LSTMModel(preprocessor)
+    lstm_model.train_model(preprocessor, embedding_dim, lstm_units, epochs, batch_size)
+
     attention_lstm_model = AttentionLSTMModel(preprocessor)
     attention_lstm_model.train_model(preprocessor, embedding_dim, lstm_units, epochs, batch_size)
